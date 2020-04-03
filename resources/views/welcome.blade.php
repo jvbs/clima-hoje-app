@@ -9,6 +9,8 @@
     <script src="/js/app.js" defer></script>
 </head>
 <body class="bg-blue-500">
-Lorem ipsum, dolor sit amet consectetur adipisicing elit. Similique ratione eveniet aliquid unde, officiis dolorem ea quasi repellendus sint vel voluptas aliquam temporibus ducimus vitae! Incidunt non nobis est ipsa?
+    <div id="app">
+        <example-component></example-component>
+    </div>
 </body>
 </html>
