@@ -1951,9 +1951,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    this.fetchData();
+    var _this = this;
+
+    this.fetchData(); // connection with algolia API
+
+    var placesAutocomplete = this.algoliaConnection();
+    placesAutocomplete.on('change', function (e) {
+      document.getElementById("address-value").textContent = "".concat(e.suggestion.name, ", ").concat(e.suggestion.country);
+      _this.location.name = e.suggestion.value;
+      _this.location.lat = e.suggestion.latlng.lat;
+      _this.location.lon = e.suggestion.latlng.lng;
+    });
+    placesAutocomplete.on('clear', function () {
+      document.getElementById("address-value").textContent = 'vazio';
+    });
+  },
+  watch: {
+    location: {
+      handler: function handler(newValue, oldValue) {
+        this.fetchData();
+      },
+      deep: true
+    }
   },
   data: function data() {
     return {
@@ -1966,7 +1989,7 @@ __webpack_require__.r(__webpack_exports__);
       },
       daily: [],
       location: {
-        name: 'Sao Paulo, Brazil',
+        name: 'São Paulo, Brazil',
         lat: -23.5489,
         lon: -46.6388
       }
@@ -1974,24 +1997,35 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     fetchData: function fetchData() {
-      var _this = this;
+      var _this2 = this;
 
       fetch("/api/weather?lat=".concat(this.location.lat, "&lon=").concat(this.location.lon)).then(function (response) {
         return response.json();
       }).then(function (data) {
-        console.log(data);
-        _this.currentTemperature.actualTemp = Math.round(data.current.temp);
-        _this.currentTemperature.feelsLike = Math.round(data.current.feels_like);
-        _this.currentTemperature.weatherSummary = data.current.weather[0].main;
-        _this.currentTemperature.weatherDesc = data.current.weather[0].description;
-        _this.currentTemperature.icon = data.current.weather[0].icon;
-        _this.daily = data.daily;
+        // console.log(data)
+        _this2.currentTemperature.actualTemp = Math.round(data.current.temp);
+        _this2.currentTemperature.feelsLike = Math.round(data.current.feels_like);
+        _this2.currentTemperature.weatherSummary = data.current.weather[0].main;
+        _this2.currentTemperature.weatherDesc = data.current.weather[0].description;
+        _this2.currentTemperature.icon = data.current.weather[0].icon;
+        _this2.daily = data.daily;
       });
     },
     toDayOfWeek: function toDayOfWeek(timestamp) {
       var newDate = new Date(timestamp * 1000);
       var daysInTheWeek = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
       return daysInTheWeek[newDate.getDay()];
+    },
+    algoliaConnection: function algoliaConnection() {
+      var placesAutocomplete = places({
+        appId: 'plP6H7587QMM',
+        apiKey: '8597782607ca1f1a94c0b0929d5db518',
+        container: document.getElementById("address-input")
+      }).configure({
+        type: 'city',
+        aroundLatLngViaIP: false
+      });
+      return placesAutocomplete;
     }
   }
 });
@@ -37375,7 +37409,7 @@ var render = function() {
       "div",
       {
         staticClass:
-          "weather-container font-sans w-128 max-w-lg rounded-lg\n  overflow-hidden bg-gray-900 shadow-lg mt-4"
+          "weather-container font-sans w-128 max-w-lg rounded-lg\n  overflow-hidden bg-gray-400 text-gray-800 shadow-lg mt-4"
       },
       [
         _c(
@@ -37393,7 +37427,7 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", [
                   _vm._v(
-                    "Sensação de " +
+                    "Sensação térmica de " +
                       _vm._s(_vm.currentTemperature.feelsLike) +
                       "°C"
                   )
@@ -37405,7 +37439,7 @@ var render = function() {
                   _vm._v(_vm._s(_vm.currentTemperature.weatherSummary))
                 ]),
                 _vm._v(" "),
-                _c("div", [_vm._v(_vm._s(_vm.currentTemperature.location))])
+                _c("div", [_vm._v(_vm._s(_vm.location.name))])
               ])
             ]),
             _vm._v(" "),
@@ -37426,7 +37460,7 @@ var render = function() {
           "div",
           {
             staticClass:
-              "future-weather text-sm bg-gray-800 px-6 py-8 overflow-hidden"
+              "future-weather text-sm bg-white text-gray-800 px-6 py-8 overflow-hidden"
           },
           _vm._l(_vm.daily, function(day, index) {
             return _c(
@@ -37437,7 +37471,7 @@ var render = function() {
                 class: { "mt-8": index > 0 }
               },
               [
-                _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
+                _c("div", { staticClass: "w-1/6 text-lg" }, [
                   _vm._v(_vm._s(_vm.toDayOfWeek(day.dt)))
                 ]),
                 _vm._v(" "),
@@ -37487,7 +37521,15 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "places-input text-gray-800" }, [
-      _c("input", { staticClass: "w-full", attrs: { type: "text" } })
+      _c("input", {
+        staticClass: "w-full",
+        attrs: { type: "text", id: "address-input" }
+      }),
+      _vm._v(" "),
+      _c("p", [
+        _vm._v("Selecionado: "),
+        _c("strong", { attrs: { id: "address-value" } }, [_vm._v("vazio")])
+      ])
     ])
   }
 ]
