@@ -8,12 +8,12 @@
       <div class="current-weather flex items-center justify-between px-6 py-8">
         <div class="flex items-center">
           <div>
-            <div class="text-6xl font-semibold">8°C</div>
-            <div>Sensação de 2°C</div>
+            <div class="text-6xl font-semibold">{{ currentTemperature.actualTemp }}°C</div>
+            <div>Sensação de {{ currentTemperature.feelsLike }}°C</div>
           </div>
           <div class="mx-5">
-            <div class="font-semibold">Cloudy</div>
-            <div>Toronto, Canadá</div>
+            <div class="font-semibold">{{ currentTemperature.weatherSummary }}</div>
+            <div>{{ currentTemperature.location }}</div>
           </div>
         </div>
         <div>icon</div>
@@ -61,7 +61,43 @@
 <script>
 export default {
   mounted() {
-    console.log('Component mounted.')
+    this.fetchData()
+  },
+  data() {
+    return {
+      currentTemperature: {
+        actualTemp: '',
+        feelsLike: '',
+        minTemp: '',
+        maxTemp: '',
+        weatherSummary: '',
+        weatherDesc: '',
+        location: '',
+        icon: ''
+      },
+      location: {
+        name: 'Sao Paulo, Brazil',
+        lat: -23.5489,
+        lon: -46.6388
+      }
+    }
+  },
+  methods: {
+    fetchData(){
+      fetch(`/api/weather?lat=${this.location.lat}&lon=${this.location.lon}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        this.currentTemperature.actualTemp = Math.round(data.main.temp)
+        this.currentTemperature.feelsLike = Math.round(data.main.feels_like)
+        this.currentTemperature.minTemp = Math.round(data.main.temp_min)
+        this.currentTemperature.maxTemp = Math.round(data.main.temp_max)
+        this.currentTemperature.weatherSummary = data.weather[0].main
+        this.currentTemperature.weatherDesc = data.weather[0].description
+        this.currentTemperature.icon = data.weather[0].icon
+        this.currentTemperature.location = data.name
+      })
+    }
   }
 }
 </script>
