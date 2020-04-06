@@ -1951,23 +1951,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     this.fetchData();
@@ -1977,13 +1960,11 @@ __webpack_require__.r(__webpack_exports__);
       currentTemperature: {
         actualTemp: '',
         feelsLike: '',
-        minTemp: '',
-        maxTemp: '',
         weatherSummary: '',
         weatherDesc: '',
-        location: '',
         icon: ''
       },
+      daily: [],
       location: {
         name: 'Sao Paulo, Brazil',
         lat: -23.5489,
@@ -1999,15 +1980,18 @@ __webpack_require__.r(__webpack_exports__);
         return response.json();
       }).then(function (data) {
         console.log(data);
-        _this.currentTemperature.actualTemp = Math.round(data.main.temp);
-        _this.currentTemperature.feelsLike = Math.round(data.main.feels_like);
-        _this.currentTemperature.minTemp = Math.round(data.main.temp_min);
-        _this.currentTemperature.maxTemp = Math.round(data.main.temp_max);
-        _this.currentTemperature.weatherSummary = data.weather[0].main;
-        _this.currentTemperature.weatherDesc = data.weather[0].description;
-        _this.currentTemperature.icon = data.weather[0].icon;
-        _this.currentTemperature.location = data.name;
+        _this.currentTemperature.actualTemp = Math.round(data.current.temp);
+        _this.currentTemperature.feelsLike = Math.round(data.current.feels_like);
+        _this.currentTemperature.weatherSummary = data.current.weather[0].main;
+        _this.currentTemperature.weatherDesc = data.current.weather[0].description;
+        _this.currentTemperature.icon = data.current.weather[0].icon;
+        _this.daily = data.daily;
       });
+    },
+    toDayOfWeek: function toDayOfWeek(timestamp) {
+      var newDate = new Date(timestamp * 1000);
+      var daysInTheWeek = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+      return daysInTheWeek[newDate.getDay()];
     }
   }
 });
@@ -37425,11 +37409,74 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _c("div", [_vm._v("icon")])
+            _c("div", [
+              _c("img", {
+                attrs: {
+                  src:
+                    "http://openweathermap.org/img/wn/" +
+                    _vm.currentTemperature.icon +
+                    "@2x.png"
+                }
+              })
+            ])
           ]
         ),
         _vm._v(" "),
-        _vm._m(1)
+        _c(
+          "div",
+          {
+            staticClass:
+              "future-weather text-sm bg-gray-800 px-6 py-8 overflow-hidden"
+          },
+          _vm._l(_vm.daily, function(day, index) {
+            return _c(
+              "div",
+              {
+                key: index,
+                staticClass: "flex items-center",
+                class: { "mt-8": index > 0 }
+              },
+              [
+                _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
+                  _vm._v(_vm._s(_vm.toDayOfWeek(day.dt)))
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "w-4/6 px-4 flex items-center" }, [
+                  _c("div", [
+                    _c("img", {
+                      style: { width: "40px", height: "40px" },
+                      attrs: {
+                        src:
+                          "http://openweathermap.org/img/wn/" +
+                          day.weather[0].icon +
+                          "@2x.png"
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "ml-3" }, [
+                    _vm._v(
+                      _vm._s(day.weather[0].main) +
+                        " - " +
+                        _vm._s(day.weather[0].description)
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "w-1/6 text-right" }, [
+                  _c("div", [
+                    _vm._v("Máx " + _vm._s(Math.round(day.temp.max)) + "°C")
+                  ]),
+                  _vm._v(" "),
+                  _c("div", [
+                    _vm._v("Min " + _vm._s(Math.round(day.temp.min)) + "°C")
+                  ])
+                ])
+              ]
+            )
+          }),
+          0
+        )
       ]
     )
   ])
@@ -37442,79 +37489,6 @@ var staticRenderFns = [
     return _c("div", { staticClass: "places-input text-gray-800" }, [
       _c("input", { staticClass: "w-full", attrs: { type: "text" } })
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass:
-          "future-weather text-sm bg-gray-800 px-6 py-8 overflow-hidden"
-      },
-      [
-        _c("div", { staticClass: "flex items-center" }, [
-          _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
-            _vm._v("MON")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-4/6 px-4 flex items-center" }, [
-            _c("div", [_vm._v("icon")]),
-            _vm._v(" "),
-            _c("div", { staticClass: "ml-3" }, [
-              _vm._v("Cloudy with a chance of showers.")
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-1/6 text-right" }, [
-            _c("div", [_vm._v("5°C")]),
-            _vm._v(" "),
-            _c("div", [_vm._v("-2°C")])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "flex items-center mt-8" }, [
-          _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
-            _vm._v("MON")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-4/6 px-4 flex items-center" }, [
-            _c("div", [_vm._v("icon")]),
-            _vm._v(" "),
-            _c("div", { staticClass: "ml-3" }, [
-              _vm._v("Cloudy with a chance of showers.")
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-1/6 text-right" }, [
-            _c("div", [_vm._v("5°C")]),
-            _vm._v(" "),
-            _c("div", [_vm._v("-2°C")])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "flex items-center mt-8" }, [
-          _c("div", { staticClass: "w-1/6 text-lg text-gray-200" }, [
-            _vm._v("MON")
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-4/6 px-4 flex items-center" }, [
-            _c("div", [_vm._v("icon")]),
-            _vm._v(" "),
-            _c("div", { staticClass: "ml-3" }, [
-              _vm._v("Cloudy with a chance of showers.")
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "w-1/6 text-right" }, [
-            _c("div", [_vm._v("5°C")]),
-            _vm._v(" "),
-            _c("div", [_vm._v("-2°C")])
-          ])
-        ])
-      ]
-    )
   }
 ]
 render._withStripped = true

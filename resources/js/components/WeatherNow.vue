@@ -16,41 +16,24 @@
             <div>{{ currentTemperature.location }}</div>
           </div>
         </div>
-        <div>icon</div>
+        <div>
+          <!-- Weather icon directly from the API -->
+          <img :src="'http://openweathermap.org/img/wn/'+ currentTemperature.icon +'@2x.png'">
+        </div>
       </div> <!-- end current weather -->
 
       <div class="future-weather text-sm bg-gray-800 px-6 py-8 overflow-hidden">
-        <div class="flex items-center">
-          <div class="w-1/6 text-lg text-gray-200">MON</div>
+        <div v-for="(day, index) in daily" :key="index" :class="{ 'mt-8': index > 0 }" class="flex items-center">
+          <div class="w-1/6 text-lg text-gray-200">{{ toDayOfWeek(day.dt) }}</div>
           <div class="w-4/6 px-4 flex items-center">
-            <div>icon</div>
-            <div class="ml-3">Cloudy with a chance of showers.</div>
+            <div>
+              <img :src="'http://openweathermap.org/img/wn/'+ day.weather[0].icon +'@2x.png'" :style="{ width : '40px', height: '40px' }">
+            </div>
+            <div class="ml-3">{{ day.weather[0].main }} - {{ day.weather[0].description }}</div>
           </div>
           <div class="w-1/6 text-right">
-            <div>5°C</div>
-            <div>-2°C</div>
-          </div>
-        </div>
-        <div class="flex items-center mt-8">
-          <div class="w-1/6 text-lg text-gray-200">MON</div>
-          <div class="w-4/6 px-4 flex items-center">
-            <div>icon</div>
-            <div class="ml-3">Cloudy with a chance of showers.</div>
-          </div>
-          <div class="w-1/6 text-right">
-            <div>5°C</div>
-            <div>-2°C</div>
-          </div>
-        </div>
-        <div class="flex items-center mt-8">
-          <div class="w-1/6 text-lg text-gray-200">MON</div>
-          <div class="w-4/6 px-4 flex items-center">
-            <div>icon</div>
-            <div class="ml-3">Cloudy with a chance of showers.</div>
-          </div>
-          <div class="w-1/6 text-right">
-            <div>5°C</div>
-            <div>-2°C</div>
+            <div>Máx {{ Math.round(day.temp.max) }}°C</div>
+            <div>Min {{ Math.round(day.temp.min) }}°C</div>
           </div>
         </div>
       </div> <!-- end future weather -->
@@ -68,13 +51,11 @@ export default {
       currentTemperature: {
         actualTemp: '',
         feelsLike: '',
-        minTemp: '',
-        maxTemp: '',
         weatherSummary: '',
         weatherDesc: '',
-        location: '',
         icon: ''
       },
+      daily: [],
       location: {
         name: 'Sao Paulo, Brazil',
         lat: -23.5489,
@@ -88,15 +69,19 @@ export default {
       .then(response => response.json())
       .then(data => {
         console.log(data)
-        this.currentTemperature.actualTemp = Math.round(data.main.temp)
-        this.currentTemperature.feelsLike = Math.round(data.main.feels_like)
-        this.currentTemperature.minTemp = Math.round(data.main.temp_min)
-        this.currentTemperature.maxTemp = Math.round(data.main.temp_max)
-        this.currentTemperature.weatherSummary = data.weather[0].main
-        this.currentTemperature.weatherDesc = data.weather[0].description
-        this.currentTemperature.icon = data.weather[0].icon
-        this.currentTemperature.location = data.name
+        this.currentTemperature.actualTemp = Math.round(data.current.temp)
+        this.currentTemperature.feelsLike = Math.round(data.current.feels_like)
+        this.currentTemperature.weatherSummary = data.current.weather[0].main
+        this.currentTemperature.weatherDesc = data.current.weather[0].description
+        this.currentTemperature.icon = data.current.weather[0].icon
+        this.daily = data.daily
       })
+    },
+    toDayOfWeek(timestamp){
+      const newDate = new Date(timestamp*1000)
+      const daysInTheWeek = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
+
+      return daysInTheWeek[newDate.getDay()]
     }
   }
 }
